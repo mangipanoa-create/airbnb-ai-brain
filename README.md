@@ -1,2 +1,9 @@
-# airbnb-ai-brain
-AI-powered Airbnb automation system for managing guests, contractors, and properties
+APP_NAME=Airbnb AI Brain
+ENVIRONMENT=development
+DATABASE_URL=sqlite:///./airbnb_ai.db
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+SENDGRID_API_KEY=
