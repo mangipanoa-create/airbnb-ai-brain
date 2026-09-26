@@ -3,7 +3,6 @@ from __future__ import annotations
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 
 from app.api import router as api_router
 from app.config import settings
@@ -12,7 +11,6 @@ from app.database import Base, engine, get_db
 
 def create_app() -> FastAPI:
     app = FastAPI(title=settings.APP_NAME, version="0.1.0")
-
     app.include_router(api_router, prefix="/api")
 
     app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -20,11 +18,28 @@ def create_app() -> FastAPI:
 
     @app.get("/")
     async def root(request: Request):
-        return templates.TemplateResponse("dashboard.html", {"request": request, "stats": {}, "recent_messages": [], "work_orders": [], "contractors": [], "bookings": []})
+        db = next(get_db())
+        try:
+            from app.services.dashboard import DashboardService
+            summary = DashboardService.get_summary(db)
+        except Exception:
+            summary = {"stats": {}, "recent_messages": [], "work_orders": [], "contractors": [], "bookings": []}
+
+        return templates.TemplateResponse(
+            "dashboard.html",
+            {
+                "request": request,
+                "stats": summary.get("stats", {}),
+                "recent_messages": summary.get("recent_messages", []),
+                "work_orders": summary.get("work_orders", []),
+                "contractors": summary.get("contractors", []),
+                "bookings": summary.get("bookings", []),
+            },
+        )
 
     @app.get("/dashboard")
-    async def dashboard_page(request: Request, db: Session = next(get_db())):
-        summary = {}
+    async def dashboard_page(request: Request):
+        db = next(get_db())
         try:
             from app.services.dashboard import DashboardService
             summary = DashboardService.get_summary(db)

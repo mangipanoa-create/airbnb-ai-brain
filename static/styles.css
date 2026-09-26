@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airbnb AI Operations Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <strong>Airbnb AI</strong>
+            <small>Ops Brain</small>
+          </div>
+        </div>
+
+        <nav>
+          <a class="active" href="/dashboard">Overview</a>
+          <a href="/api/health">Health</a>
+          <a href="/api/work-orders">Work Orders</a>
+          <a href="/api/messages">Messages</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Operations</p>
+            <h1>Airbnb Command Center</h1>
+          </div>
+          <button class="primary-btn">Create alert</button>
+        </header>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span>Total Listings</span>
+            <strong>{{ stats.listings or 0 }}</strong>
+          </div>
+          <div class="stat-card">
+            <span>Guests</span>
+            <strong>{{ stats.guests or 0 }}</strong>
+          </div>
+          <div class="stat-card">
+            <span>Bookings</span>
+            <strong>{{ stats.bookings or 0 }}</strong>
+          </div>
+          <div class="stat-card warning">
+            <span>Open Work Orders</span>
+            <strong>{{ stats.open_work_orders or 0 }}</strong>
+          </div>
+          <div class="stat-card danger">
+            <span>Urgent Issues</span>
+            <strong>{{ stats.urgent_work_orders or 0 }}</strong>
+          </div>
+          <div class="stat-card success">
+            <span>Upcoming Check-ins</span>
+            <strong>{{ stats.upcoming_check_ins or 0 }}</strong>
+          </div>
+        </section>
+
+        <section class="panel-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Recent guest messages</h2>
+            </div>
+            <ul class="list">
+              {% for msg in recent_messages %}
+              <li>
+                <div>
+                  <strong>{{ msg.sender_type }}</strong>
+                  <p>{{ msg.content }}</p>
+                </div>
+                <span class="badge {{ msg.urgency or 'low' }}">{{ msg.urgency or 'low' }}</span>
+              </li>
+              {% else %}
+              <li>No messages yet</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Live work orders</h2>
+            </div>
+            <ul class="list">
+              {% for order in work_orders %}
+              <li>
+                <div>
+                  <strong>{{ order.issue_type }}</strong>
+                  <p>{{ order.issue_summary }}</p>
+                </div>
+                <span class="badge {{ order.priority or 'medium' }}">{{ order.priority or 'medium' }}</span>
+              </li>
+              {% else %}
+              <li>No active work orders</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+
+        <section class="panel-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Contractor status</h2>
+            </div>
+            <ul class="list compact">
+              {% for contractor in contractors %}
+              <li>
+                <div>
+                  <strong>{{ contractor.name }}</strong>
+                  <small>{{ contractor.service_type }} · {{ contractor.city or 'Unknown city' }}</small>
+                </div>
+                <span class="badge {{ contractor.status or 'available' }}">{{ contractor.status or 'available' }}</span>
+              </li>
+              {% else %}
+              <li>No contractors added yet</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Upcoming bookings</h2>
+            </div>
+            <ul class="list compact">
+              {% for booking in bookings %}
+              <li>
+                <div>
+                  <strong>{{ booking.id[:8] }}</strong>
+                  <small>{{ booking.check_in }} → {{ booking.check_out }}</small>
+                </div>
+                <span class="badge {{ booking.status or 'confirmed' }}">{{ booking.status or 'confirmed' }}</span>
+              </li>
+              {% else %}
+              <li>No bookings yet</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
